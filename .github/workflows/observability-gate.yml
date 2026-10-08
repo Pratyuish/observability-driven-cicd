@@ -1,0 +1,51 @@
+name: Observability Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      synthetic_url:
+        description: "Optional URL for synthetic check"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Synthetic check
+        if: ${{ inputs.synthetic_url != '' }}
+        run: |
+          python scripts/synthetic_check.py             --url "${{ inputs.synthetic_url }}"             --max-latency-ms 500 | tee reports/synthetic.json
+
+      - name: Explain next phase
+        run: |
+          cat <<'EOF'
+          Next iterations will:
+          1. query Prometheus,
+          2. compare baseline and candidate releases,
+          3. build a JSON gate report,
+          4. invoke the mock/AI reliability agent,
+          5. promote or block progressive delivery.
+          EOF
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: observability-gate-report
+          path: reports/
+          if-no-files-found: ignore
