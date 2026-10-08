@@ -2,14 +2,14 @@
 
 ## v0.1 — Observable deployment foundation
 
-- [ ] Sample microservice
-- [ ] kind-based local Kubernetes environment
-- [ ] OpenTelemetry Collector
-- [ ] Prometheus
-- [ ] Grafana
+- [x] Sample microservice
+- [x] kind-based local Kubernetes environment
+- [x] OpenTelemetry Collector
+- [x] Prometheus
+- [x] Grafana
 - [x] Initial SLO configuration
 - [x] Pre/post deployment gate skeleton
-- [ ] Synthetic transaction
+- [x] Synthetic transaction
 
 ## v0.2 — SLO deployment gates
 
@@ -35,7 +35,7 @@
 - [ ] Log correlation
 - [ ] Trace correlation
 - [ ] Kubernetes event correlation
-- [ ] Deterministic mock agent
+- [x] Deterministic mock agent
 - [ ] Optional LLM provider interface
 
 ## v0.5 — Agentic delivery
