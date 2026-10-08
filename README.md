@@ -4,6 +4,109 @@ An open-source reference implementation for **health-aware Kubernetes delivery**
 
 Instead of declaring a deployment successful only because Kubernetes reports a completed rollout, this project uses **pre-deployment and post-deployment observability gates** to decide whether a release should proceed, pause, or roll back.
 
+## Quick demo
+
+The repository now includes a working local model using:
+
+- **kind** for Kubernetes
+- a small observable Python API
+- **OpenTelemetry Collector**
+- **Prometheus**
+- **Grafana**
+
+### Prerequisites
+
+Install and start:
+
+- Docker
+- kind
+- kubectl
+- curl
+- make
+
+### Start everything
+
+```bash
+git clone https://github.com/Pratyuish/observability-driven-cicd.git
+cd observability-driven-cicd
+make demo
+```
+
+`make demo` will:
+
+1. build the local demo API image,
+2. create or reuse the `odc-demo` kind cluster,
+3. load the image into kind,
+4. deploy the API, OpenTelemetry Collector, Prometheus, and Grafana,
+5. wait for all deployments,
+6. start local port-forwards,
+7. generate starter traffic,
+8. verify the main endpoints.
+
+After startup:
+
+| Component | URL |
+| --- | --- |
+| Demo API | http://localhost:8080 |
+| API health | http://localhost:8080/health |
+| API metrics | http://localhost:8080/metrics |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3000 |
+
+Grafana local credentials:
+
+```text
+username: admin
+password: admin
+```
+
+### Generate healthy traffic
+
+```bash
+make traffic
+```
+
+### Inject an intentional regression
+
+```bash
+make bad-traffic
+```
+
+The bad-traffic target introduces slow requests and HTTP 500 responses so you can see the observability signals change immediately.
+
+Useful PromQL examples:
+
+```promql
+demo_http_requests_total
+```
+
+```promql
+rate(demo_http_requests_total[1m])
+```
+
+```promql
+histogram_quantile(
+  0.95,
+  sum by (le) (
+    rate(demo_http_request_duration_seconds_bucket[1m])
+  )
+)
+```
+
+### Run the pre-deployment health check
+
+```bash
+make precheck
+```
+
+This checks Kubernetes API connectivity and node health and writes a JSON report under `reports/`.
+
+### Stop the demo
+
+```bash
+make demo-down
+```
+
 ## Goals
 
 - Validate cluster and application health before deployment.
@@ -43,19 +146,19 @@ Post-deployment health gate
                      GitHub issue/report
 ```
 
-## Planned stack
+## Stack
 
 | Area | Technology |
 | --- | --- |
 | Source control / CI | GitHub + GitHub Actions |
-| Kubernetes | kind initially |
-| Continuous delivery | Argo CD |
-| Progressive delivery | Argo Rollouts |
-| Telemetry | OpenTelemetry |
+| Local Kubernetes | kind |
+| Continuous delivery | Argo CD planned |
+| Progressive delivery | Argo Rollouts planned |
+| Telemetry | OpenTelemetry Collector |
 | Metrics | Prometheus |
 | Visualization | Grafana |
-| Traces | Tempo |
-| Logs | Loki |
+| Traces | Tempo planned |
+| Logs | Loki planned |
 | SLO gates | PromQL + Python |
 | Agents | Python; LangGraph planned |
 | Policy | OPA/Rego planned |
