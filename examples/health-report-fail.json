@@ -1,0 +1,20 @@
+{
+  "phase": "post-deploy",
+  "gates": {
+    "availability": {
+      "passed": true,
+      "observed": 99.7,
+      "threshold": ">= 99.0"
+    },
+    "error_rate": {
+      "passed": false,
+      "observed": 4.3,
+      "threshold": "<= 1.0"
+    },
+    "latency_p95": {
+      "passed": false,
+      "observed": 670,
+      "threshold": "<= 500 ms"
+    }
+  }
+}
