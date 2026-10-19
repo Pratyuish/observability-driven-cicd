@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: help validate test demo demo-down traffic bad-traffic precheck mock-agent clean
+.PHONY: help validate test demo demo-down traffic bad-traffic precheck cost-demo cost-report mock-agent clean
 
 help:
 	@echo "Targets:"
@@ -9,6 +9,8 @@ help:
 	@echo "  make traffic      Generate healthy demo traffic"
 	@echo "  make bad-traffic  Inject intentional latency and HTTP 500 responses"
 	@echo "  make precheck     Run the pre-deployment Kubernetes health check"
+	@echo "  make cost-demo    Run the FinOps gate against sample baseline/candidate (expected to block)"
+	@echo "  make cost-report  Generate the same cost report without failing the shell"
 	@echo "  make validate     Compile Python and validate required files"
 	@echo "  make test         Run unit tests"
 	@echo "  make mock-agent   Run the deterministic agent against sample health data"
@@ -29,12 +31,20 @@ bad-traffic:
 precheck:
 	$(PYTHON) scripts/pre_deploy_health.py
 
+cost-demo:
+	$(PYTHON) scripts/cost_gate.py 		--baseline examples/cost/baseline.yaml 		--candidate examples/cost/candidate.yaml 		--pricing finops/pricing.yaml 		--policy finops/budget-policy.yaml
+
+cost-report:
+	-$(PYTHON) scripts/cost_gate.py 		--baseline examples/cost/baseline.yaml 		--candidate examples/cost/candidate.yaml 		--pricing finops/pricing.yaml 		--policy finops/budget-policy.yaml
+
 validate:
 	$(PYTHON) -m py_compile scripts/*.py agents/*.py apps/demo-api/app.py
 	test -f README.md
 	test -f LICENSE
 	test -f slo/slo.yaml
 	test -f kubernetes/demo-stack.yaml
+	test -f finops/pricing.yaml
+	test -f finops/budget-policy.yaml
 	test -f apps/demo-api/Dockerfile
 
 test:
