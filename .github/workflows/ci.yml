@@ -20,18 +20,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Compile Python sources
-        run: |
-          python -m py_compile scripts/*.py agents/*.py
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name: Validate repository structure
-        run: |
-          test -f README.md
-          test -f LICENSE
-          test -f CONTRIBUTING.md
-          test -f SECURITY.md
-          test -f slo/slo.yaml
+      - name: Validate sources
+        run: make validate
+
+      - name: Run unit tests
+        run: make test
 
       - name: Show project status
-        run: |
-          echo "Repository foundation validated."
+        run: echo "Repository validation and tests passed."
