@@ -20,6 +20,19 @@
 - [ ] Baseline-vs-candidate comparison
 - [ ] GitHub Actions gate report
 
+## v0.2.5 — FinOps-driven delivery
+
+- [x] Kubernetes pre-deployment cost estimator
+- [x] Baseline vs candidate monthly cost comparison
+- [x] Budget policy gate
+- [x] Resource-level cost breakdown
+- [x] GitHub Actions cost-gate workflow
+- [x] Configurable pricing and budget policy
+- [ ] Terraform plan / Infracost adapter
+- [ ] OpenCost runtime reconciliation
+- [ ] Optimization recommendation agent
+- [ ] PR comment with cost delta
+
 ## v0.3 — Progressive delivery
 
 - [ ] Argo CD
