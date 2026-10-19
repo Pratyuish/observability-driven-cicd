@@ -1,0 +1,14 @@
+version: 1
+
+policy:
+  # Block if the candidate exceeds any enabled threshold.
+  max_monthly_cost: 250.00
+  max_increase_percent: 20.0
+  max_absolute_increase: 50.00
+
+  # Missing resource requests make workload cost estimates unreliable.
+  require_resource_requests: true
+
+  # Advisory metadata used in reports.
+  owner: platform-engineering
+  approval_required_above_monthly_cost: 200.00
