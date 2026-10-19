@@ -1,6 +1,7 @@
 import importlib.util
 import tempfile
 import unittest
+import sys
 from pathlib import Path
 
 import yaml
@@ -9,6 +10,7 @@ import yaml
 MODULE_PATH = Path(__file__).parents[1] / "scripts" / "cost_gate.py"
 SPEC = importlib.util.spec_from_file_location("cost_gate", MODULE_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = MODULE
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
 
