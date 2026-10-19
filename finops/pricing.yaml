@@ -1,0 +1,18 @@
+# Illustrative pricing for the local CI/CD FinOps demo.
+# Replace these values with your negotiated cloud/vendor rates.
+currency: USD
+hours_per_month: 730
+
+compute:
+  cpu_core_hour: 0.031611
+  memory_gib_hour: 0.004237
+
+storage:
+  persistent_volume_gib_month: 0.08
+
+network:
+  load_balancer_month: 18.25
+
+kubernetes:
+  # Used when estimating DaemonSets outside a live cluster.
+  assumed_daemonset_nodes: 3
