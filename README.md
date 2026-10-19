@@ -107,6 +107,65 @@ This checks Kubernetes API connectivity and node health and writes a JSON report
 make demo-down
 ```
 
+## Pre-deployment FinOps cost gate
+
+The project now also evaluates **infrastructure cost before deployment**.
+
+A pull request that changes Kubernetes infrastructure can be evaluated as:
+
+```text
+PR
+ ↓
+Kubernetes manifests
+ ↓
+Cost estimator
+ ├─ CPU requests
+ ├─ Memory requests
+ ├─ Replica count
+ ├─ Persistent storage
+ └─ LoadBalancer services
+ ↓
+Baseline vs candidate
+ ↓
+Budget policy
+ ├─ max monthly cost
+ ├─ max absolute increase
+ ├─ max percentage increase
+ └─ mandatory resource requests
+ ↓
+PASS → continue CI/CD
+BLOCK → optimize or obtain approval
+```
+
+Install the small Python dependency set:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Then run the deliberately expensive example:
+
+```bash
+make cost-demo
+```
+
+The sample candidate increases replicas/resources and adds a LoadBalancer plus PVC, so the policy is designed to block it. A Markdown and JSON report are generated under `reports/`.
+
+To generate the report without propagating the non-zero policy exit code:
+
+```bash
+make cost-report
+```
+
+Pricing and governance are configurable in:
+
+- `finops/pricing.yaml`
+- `finops/budget-policy.yaml`
+
+The default prices are illustrative. Replace them with cloud list prices, enterprise discounts, vendor contracts, or internal showback rates.
+
+See [docs/finops-cicd.md](docs/finops-cicd.md) for the design and extension path toward Terraform/Infracost, OpenCost, cloud pricing APIs, and AI-assisted optimization recommendations.
+
 ## Goals
 
 - Validate cluster and application health before deployment.
