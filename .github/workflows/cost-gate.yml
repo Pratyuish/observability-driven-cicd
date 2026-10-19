@@ -1,0 +1,61 @@
+name: Pre-deployment FinOps Gate
+
+on:
+  pull_request:
+    paths:
+      - "kubernetes/**"
+      - "finops/**"
+      - "scripts/cost_gate.py"
+      - "requirements.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  finops-gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Prepare baseline for pull request
+        if: github.event_name == 'pull_request'
+        run: |
+          mkdir -p /tmp/finops-baseline
+          git show "${{ github.event.pull_request.base.sha }}:kubernetes/demo-stack.yaml"             > /tmp/finops-baseline/demo-stack.yaml
+
+      - name: Run pull-request cost gate
+        if: github.event_name == 'pull_request'
+        run: |
+          python scripts/cost_gate.py             --baseline /tmp/finops-baseline/demo-stack.yaml             --candidate kubernetes/demo-stack.yaml             --pricing finops/pricing.yaml             --policy finops/budget-policy.yaml
+          cat reports/cost-gate.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run demonstration cost gate
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set +e
+          python scripts/cost_gate.py             --baseline examples/cost/baseline.yaml             --candidate examples/cost/candidate.yaml             --pricing finops/pricing.yaml             --policy finops/budget-policy.yaml
+          code=$?
+          cat reports/cost-gate.md >> "$GITHUB_STEP_SUMMARY"
+          echo "Demo exit code: $code" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Upload FinOps report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finops-cost-gate-report
+          path: reports/
+          if-no-files-found: ignore
