@@ -1,0 +1,31 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "inc-005",
+    "namespace": "ai-incidents"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "inc-005"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "inc-005"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "app",
+            "image": "nginx:1.27"
+          }
+        ]
+      }
+    }
+  }
+}
