@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: missing-app-config
+  namespace: ai-incidents
+data:
+  APP_ENV: "lab"
+  APP_NAME: "inc-003"
