@@ -1,0 +1,36 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "inc-004",
+    "namespace": "ai-incidents"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "inc-004"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "inc-004"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "app",
+            "image": "python:3.12-alpine",
+            "command": [
+              "python",
+              "-c",
+              "import urllib.request; urllib.request.urlopen('http://missing-api.ai-incidents.svc.cluster.local:8080',timeout=3)"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "inc-004",
+    "namespace": "ai-incidents"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "inc-004"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "inc-004"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "app",
+            "image": "python:3.12-alpine",
+            "command": [
+              "python",
+              "-u",
+              "-c",
+              "\nimport time\nimport urllib.request\n\nurl = \"http://missing-api.ai-incidents.svc.cluster.local:8080\"\n\nwhile True:\n    try:\n        with urllib.request.urlopen(url, timeout=3) as response:\n            print(\"Dependency HTTP status:\", response.status, flush=True)\n    except Exception as exc:\n        print(\"Dependency check failed:\", repr(exc), flush=True)\n\n    time.sleep(5)\n"
+            ],
+            "resources": {
+              "requests": {
+                "memory": "32Mi",
+                "cpu": "25m"
+              },
+              "limits": {
+                "memory": "128Mi"
+              }
+            },
+            "readinessProbe": {
+              "exec": {
+                "command": [
+                  "python",
+                  "-c",
+                  "import urllib.request; urllib.request.urlopen('http://missing-api.ai-incidents.svc.cluster.local:8080',timeout=3).close()"
+                ]
+              },
+              "periodSeconds": 5,
+              "timeoutSeconds": 5
+            }
+          }
+        ]
+      }
+    }
+  }
+}

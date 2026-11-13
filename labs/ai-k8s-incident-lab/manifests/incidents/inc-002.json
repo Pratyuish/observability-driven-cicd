@@ -1,0 +1,44 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "inc-002",
+    "namespace": "ai-incidents"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "inc-002"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "inc-002"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "app",
+            "image": "python:3.12-alpine",
+            "resources": {
+              "requests": {
+                "memory": "16Mi"
+              },
+              "limits": {
+                "memory": "32Mi"
+              }
+            },
+            "command": [
+              "python",
+              "-c",
+              "import time; a=bytearray(128*1024*1024); time.sleep(300)"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

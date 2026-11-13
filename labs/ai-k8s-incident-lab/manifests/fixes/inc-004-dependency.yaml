@@ -1,0 +1,56 @@
+
+# manifests/fixes/inc-004-dependency.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: missing-api
+  namespace: ai-incidents
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: missing-api
+  template:
+    metadata:
+      labels:
+        app: missing-api
+    spec:
+      containers:
+        - name: api
+          image: python:3.12-alpine
+          command:
+            - python
+            - -m
+            - http.server
+            - "8080"
+            - --bind
+            - "0.0.0.0"
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: missing-api
+  namespace: ai-incidents
+spec:
+  selector:
+    app: missing-api
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+
+
+
