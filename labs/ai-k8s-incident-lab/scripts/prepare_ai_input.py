@@ -1,28 +1,42 @@
-
-import sys
 from pathlib import Path
+import sys
 
-incident = sys.argv[1]
-folder = Path("evidence") / incident
+ROOT = Path(__file__).resolve().parents[1]
 
-sections = [
-    "pods.json",
-    "deployment.yaml",
-    "pod-description.txt",
-    "events.json",
-    "logs.txt",
-    "previous-logs.txt",
-    "git-history.txt"
-]
+def prepare(incident):
+    folder = ROOT / "evidence" / incident
 
-output = folder / "ai-input.txt"
+    if not folder.exists():
+        raise SystemExit(f"No evidence: {folder}")
 
-with output.open("w") as f:
-    for name in sections:
-        file = folder / name
-        if file.exists():
+    names = [
+        "collection-time.txt",
+        "pods.json",
+        "deployment.yaml",
+        "pod-description.txt",
+        "replicasets.json",
+        "events.json",
+        "git-history.txt"
+    ]
+
+    names += [
+        p.name for p in sorted(folder.glob("*.log"))
+    ]
+
+    output = folder / "ai-input.txt"
+
+    with output.open("w") as f:
+        for name in names:
+            file = folder / name
+
+            if not file.exists():
+                continue
+
             f.write(f"\n===== {name} =====\n")
             f.write(file.read_text(errors="replace"))
             f.write("\n")
 
-print(f"AI evidence package: {output}")
+    print("Created:", output)
+
+for incident in sys.argv[1:]:
+    prepare(incident)
